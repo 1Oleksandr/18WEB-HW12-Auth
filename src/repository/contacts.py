@@ -25,27 +25,27 @@ async def get_contact(contact_id: int, db: AsyncSession, user: User):
     contact = await db.execute(stmt)
     return contact.scalar_one_or_none()
 
-async def get_contacts_by_name(contact_name: str, db: AsyncSession):
-    stmt = select(Contact).where(Contact.name.ilike(contact_name))
+async def get_contacts_by_name(contact_name: str, db: AsyncSession, user: User):
+    stmt = select(Contact).filter_by(user=user).where(Contact.name.ilike(contact_name))
     # stmt = select(Contact).filter_by(name = contact_name)
     contacts = await db.execute(stmt)
     return contacts.scalars().all()
 
-async def get_contacts_by_surname(contact_surname: str, db: AsyncSession):
-    stmt = select(Contact).where(Contact.surname.ilike(contact_surname))
+async def get_contacts_by_surname(contact_surname: str, db: AsyncSession, user: User):
+    stmt = select(Contact).filter_by(user=user).where(Contact.surname.ilike(contact_surname))
     # stmt = select(Contact).filter_by(surname = contact_surname)
     contacts = await db.execute(stmt)
     return contacts.scalars().all()
 
-async def get_contact_by_email(contact_email: str, db: AsyncSession):
-    stmt = select(Contact).filter_by(email = contact_email)
+async def get_contact_by_email(contact_email: str, db: AsyncSession, user: User):
+    stmt = select(Contact).filter_by(email = contact_email, user=user)
     contact = await db.execute(stmt)
     return contact.scalar_one_or_none()
 
-async def get_contact_by_birthday(birthday: date, n:int, db: AsyncSession):
+async def get_contact_by_birthday(birthday: date, n:int, db: AsyncSession, user: User):
     # today = date.today()
-    seven_days_later = birthday+ timedelta(days=n)
-    stmt = select(Contact).where(and_(Contact.birthday != None, Contact.b_date.between(birthday, seven_days_later)))
+    n_days_later = birthday+ timedelta(days=n)
+    stmt = select(Contact).filter_by(user=user).where(and_(Contact.birthday != None, Contact.b_date.between(birthday, n_days_later)))
     contacts = await db.execute(stmt)
     return contacts.scalars().all()
 
